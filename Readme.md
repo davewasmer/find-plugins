@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/davewasmer/find-plugins.svg?branch=master)](https://travis-ci.org/davewasmer/find-plugins)
+
 # find-plugins
 
 A simple tool to find installed npm packages that meet certain criteria. Great for finding installed plugins or complementary packages to yours.
