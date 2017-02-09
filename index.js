@@ -6,7 +6,7 @@ const DAG = require('dag-map').default;
 module.exports = function(options) {
   options = options || {};
   // The node_modules directory to scan for plugins
-  let modulesDir = options.modulesDir || path.join(process.cwd(), 'node_modules');
+  let modulesDir = options.modulesDir || 'node_modules';
   // The path to the package.json that lists dependencies to check for plugins
   let pkgPath = options.pkg || 'package.json';
   let pkg = require(pkgPath);

@@ -1,19 +1,23 @@
-interface PluginSummary {
+import path from 'path';
 
-  /**
-   * The path to the plugin's directory
-   *
-   * @type {string}
-   */
-  dir: string;
+declare namespace findPlugins {
+  export interface PluginSummary {
 
-  /**
-   * The contents of the plugin's package.json file
-   *
-   * @type {*}
-   */
-  pkg: any;
+    /**
+     * The path to the plugin's directory
+     *
+     * @type {string}
+     */
+    dir: string;
 
+    /**
+     * The contents of the plugin's package.json file
+     *
+     * @type {*}
+     */
+    pkg: any;
+
+  }
 }
 
 declare function findPlugins(options?: {
@@ -23,7 +27,7 @@ declare function findPlugins(options?: {
    *
    * @type {string}
    */
-  modulesDir?: string = process.cwd(),
+  modulesDir?: string = 'node_modules',
 
   /**
    * The path to the package.json that lists dependencies to check for plugins
@@ -117,6 +121,6 @@ declare function findPlugins(options?: {
    */
   includeOptional?: boolean
 
-}): PluginSummary[];
+}): findPlugins.PluginSummary[];
 
 export = findPlugins;
