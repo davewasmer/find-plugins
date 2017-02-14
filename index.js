@@ -1,7 +1,9 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const resolve = require('resolve');
 const readPkg = require('read-pkg');
+const readPkgUp = require('read-pkg-up');
 const DAG = require('dag-map').default;
 
 function findPlugins(options) {
@@ -74,7 +76,7 @@ function findPlugins(options) {
     if (options.includeOptional) {
       dependencies = dependencies.concat(Object.keys(pkg.optionalDependencies || {}));
     }
-    pluginCandidateDirectories = dependencies.map((dir) => path.join(modulesDir, dir));
+    pluginCandidateDirectories = dependencies.map((dep) => resolve.sync(dep, { basedir: modulesDir }));
   }
 
   // Include an manually specified packages in the list of plugin candidates
@@ -83,7 +85,7 @@ function findPlugins(options) {
   let plugins = pluginCandidateDirectories.map((dir) => {
     return {
       dir: dir,
-      pkg: require(path.join(dir, 'package.json'))
+      pkg: readPkgUp.sync({ cwd: dir }).pkg
     };
   }).filter(isPlugin);
 
