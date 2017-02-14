@@ -29,7 +29,8 @@
     "mocha": "^3.2.0"
   },
   "dependencies": {
-    "dag-map": "^2.0.2"
+    "dag-map": "^2.0.2",
+    "try-require": "^1.2.1"
   },
   "types": "index.d.ts"
 }
