@@ -1,26 +1,24 @@
 import path from 'path';
 
-declare namespace findPlugins {
-  export interface PluginSummary {
+export interface PluginSummary {
 
-    /**
-     * The path to the plugin's directory
-     *
-     * @type {string}
-     */
-    dir: string;
+  /**
+   * The path to the plugin's directory
+   *
+   * @type {string}
+   */
+  dir: string;
 
-    /**
-     * The contents of the plugin's package.json file
-     *
-     * @type {*}
-     */
-    pkg: any;
+  /**
+   * The contents of the plugin's package.json file
+   *
+   * @type {*}
+   */
+  pkg: any;
 
-  }
 }
 
-declare function findPlugins(options?: {
+export default function findPlugins(options?: {
 
   /**
    * The node_modules directory to scan for plugins
@@ -121,6 +119,4 @@ declare function findPlugins(options?: {
    */
   includeOptional?: boolean
 
-}): findPlugins.PluginSummary[];
-
-export = findPlugins;
+}): PluginSummary[];

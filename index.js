@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const DAG = require('dag-map').default;
 
-module.exports = function(options) {
+function findPlugins(options) {
   options = options || {};
   // The node_modules directory to scan for plugins
   let modulesDir = options.modulesDir || 'node_modules';
@@ -89,3 +89,7 @@ module.exports = function(options) {
 
   return plugins;
 }
+
+findPlugins.default = findPlugins;
+
+module.exports = findPlugins;
