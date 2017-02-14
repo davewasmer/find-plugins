@@ -21,11 +21,12 @@ export interface PluginSummary {
 export default function findPlugins(options?: {
 
   /**
-   * The node_modules directory to scan for plugins
+   * The directory to scan for plugins. If `scanAllDirs` is true, this should be a node_modules
+   * folder. If not, it should be a folder that contains a node_modules folder.
    *
    * @type {string}
    */
-  modulesDir?: string = 'node_modules',
+  dir?: string = 'node_modules',
 
   /**
    * The path to the package.json that lists dependencies to check for plugins
