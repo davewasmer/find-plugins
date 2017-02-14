@@ -90,7 +90,7 @@ function findPlugins(options) {
   if (options.sort) {
     let graph = new DAG();
     plugins.forEach((plugin) => {
-      let pluginConfig = plugin.pkg[options.configName];
+      let pluginConfig = plugin.pkg[options.configName] || {};
       graph.add(plugin.pkg.name, plugin, pluginConfig.before, pluginConfig.after);
     });
     plugins = [];
