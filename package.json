@@ -26,6 +26,6 @@
   },
   "homepage": "https://github.com/davewasmer/find-plugins",
   "devDependencies": {
-    "mocha": "^2.0.1"
+    "mocha": "^3.2.0"
   }
 }
