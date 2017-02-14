@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const tryRequire = require('try-require');
+const readPkg = require('read-pkg');
 const DAG = require('dag-map').default;
 
 function findPlugins(options) {
@@ -10,7 +10,7 @@ function findPlugins(options) {
   let modulesDir = options.modulesDir || 'node_modules';
   // The path to the package.json that lists dependencies to check for plugins
   let pkgPath = options.pkg || './package.json';
-  let pkg = tryRequire(pkgPath);
+  let pkg = readPkg.sync(pkgPath);
   // An array of additional paths to check as plugins
   let includes = options.include || [];
   // If supplied, a package will be considered a plugin if `keyword` is present in it's

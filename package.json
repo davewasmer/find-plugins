@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "dag-map": "^2.0.2",
+    "read-pkg": "^2.0.0",
     "try-require": "^1.2.1"
   },
   "types": "index.d.ts"
