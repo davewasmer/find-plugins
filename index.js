@@ -41,7 +41,18 @@ function findPlugins(options) {
   // scanAllDirs indicates that we should ignore the package.json contents and
   // simply look at the contents of the node_modules directory
   if (options.scanAllDirs) {
-    pluginCandidateDirectories = fs.readdirSync(modulesDir)
+    pluginCandidateDirectories = fs.readdirSync(modulesDir);
+    // Handle scoped packages
+    let scoped = pluginCandidateDirectories.filter((name) => name.charAt(0) === '@')
+    pluginCandidateDirectories = pluginCandidateDirectories.filter((name) => name.charAt(0) !== '@');
+    scoped.forEach((scope) => {
+      fs.readdirSync(path.join(modulesDir, scope))
+        .forEach((scopedPackageName) => {
+          pluginCandidateDirectories.push(path.join(scope, scopedPackageName));
+        });
+    });
+    // Normalize the paths
+    pluginCandidateDirectories = pluginCandidateDirectories
       .filter((name) => name !== '.bin')
       .map((name) => path.join(modulesDir, name))
       .filter((dir) => fs.statSync(dir).isDirectory());
