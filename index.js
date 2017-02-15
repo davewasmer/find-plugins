@@ -21,51 +21,70 @@ function findPlugins(options) {
   // If supplied, a package will be considered a plugin if `keyword` is present in it's
   // package.json "keywords" array
   let keyword = options.keyword;
-  // If sort: true is supplied, this determines what property of the plugin's package.json to
-  // check for the sort configuration (it should be an object with "before" and "after" properties
-  // which are arrays of other plugins names). If no configName is given, default to the pkg name.
-  // If no pkg is given, or it failed to load, this will error out early.
+
   if (!pkg && !options.configName && options.sort) {
     throw new Error('You passed sort: true to findPlugins, but did not provide a valid package.json path or configName');
   }
 
-  let pluginCandidateDirectories = [];
+  let pluginCandidateDirectories = options.scanAllDirs ? findCandidatesInDir(dir) : findCandidatesFromPkg(pkg);
 
-  // The filter function that determines whether a package is a plugin. If options.filter
-  // is supplied, go with that. Otherwise, check for options.keyword match.
-  function isPlugin(plugin) {
-    if (options.filter) {
-      return options.filter(plugin);
-    }
-    if (!plugin.pkg.keywords) {
+  // Include an manually specified packages in the list of plugin candidates
+  pluginCandidateDirectories = pluginCandidateDirectories.concat(includes.map((includedDir) => {
+    try {
+      return {
+        dir: includedDir,
+        pkg: readPkg.sync(path.join(includedDir, 'package.json'))
+      };
+    } catch (e) {
       return false;
     }
-    if (!keyword) {
-      keyword = plugin.pkg.name;
-    }
-    return plugin.pkg.keywords.indexOf(keyword) > -1;
+  }));
+
+  let plugins = pluginCandidateDirectories.filter(Boolean).filter(isPlugin);
+
+  if (options.sort) {
+    let graph = new DAG();
+    plugins.forEach((plugin) => {
+      let pluginConfig = plugin.pkg[options.configName || pkg.name] || {};
+      graph.add(plugin.pkg.name, plugin, pluginConfig.before, pluginConfig.after);
+    });
+    plugins = [];
+    graph.topsort((key, value) => {
+      plugins.push(value);
+    });
   }
 
-  // scanAllDirs indicates that we should ignore the package.json contents and
-  // simply look at the contents of the node_modules directory
-  if (options.scanAllDirs) {
-    pluginCandidateDirectories = fs.readdirSync(dir);
-    // Handle scoped packages
-    let scoped = pluginCandidateDirectories.filter((name) => name.charAt(0) === '@')
-    pluginCandidateDirectories = pluginCandidateDirectories.filter((name) => name.charAt(0) !== '@');
-    scoped.forEach((scope) => {
-      fs.readdirSync(path.join(dir, scope))
-        .forEach((scopedPackageName) => {
-          pluginCandidateDirectories.push(path.join(scope, scopedPackageName));
-        });
-    });
-    // Normalize the paths
-    pluginCandidateDirectories = pluginCandidateDirectories
-      .filter((name) => name !== '.bin')
+  return plugins;
+
+  function findCandidatesInDir(dir) {
+    return fs.readdirSync(dir)
+      // Handle scoped packages
+      .reduce((candidates, name) => {
+        if (name.charAt(0) === '@') {
+          fs.readdirSync(path.join(dir, name))
+          .forEach((scopedPackageName) => {
+            candidates.push(path.join(name, scopedPackageName));
+          });
+        } else {
+          candidates.push(name);
+        }
+        return candidates;
+      }, [])
+      // Get the full directory path
       .map((name) => path.join(dir, name))
-      .filter((dir) => fs.statSync(dir).isDirectory());
-  // Otherwise, use the consuming package.json dependencies as the list of plugin candidates
-  } else {
+      // Ensure it actually is a directory
+      .filter((dir) => fs.statSync(dir).isDirectory())
+      // Load the package.json for each
+      .map((dir) => {
+        try {
+          return { dir, pkg: readPkg.sync(path.join(dir, 'package.json')) };
+        } catch (e) {
+          return false;
+        }
+      })
+  }
+
+  function findCandidatesFromPkg(pkg) {
     let dependencies = [];
     if (!options.excludeDependencies) {
       dependencies = dependencies.concat(Object.keys(pkg.dependencies || {}));
@@ -82,33 +101,34 @@ function findPlugins(options) {
     if (options.includeOptional) {
       dependencies = dependencies.concat(Object.keys(pkg.optionalDependencies || {}));
     }
-    pluginCandidateDirectories = dependencies.map((dep) => resolve.sync(dep, { basedir: dir }));
+    return dependencies
+      // Load package.json's from resolved package location
+      .map((dir) => {
+        try {
+          let pkgMainPath = resolve.sync(name, { basedir: dir });
+          let pkg = readPkgUp.sync({ cwd: path.dirname(pkgMainPath) });
+          return { dir, pkg };
+        } catch (e) {
+          return false;
+        }
+      })
   }
 
-  // Include an manually specified packages in the list of plugin candidates
-  pluginCandidateDirectories = pluginCandidateDirectories.concat(includes);
-
-
-  let plugins = pluginCandidateDirectories.map((dir) => {
-    return {
-      dir: dir,
-      pkg: readPkgUp.sync({ cwd: dir }).pkg
-    };
-  }).filter(isPlugin);
-
-  if (options.sort) {
-    let graph = new DAG();
-    plugins.forEach((plugin) => {
-      let pluginConfig = plugin.pkg[options.configName || pkg.name] || {};
-      graph.add(plugin.pkg.name, plugin, pluginConfig.before, pluginConfig.after);
-    });
-    plugins = [];
-    graph.topsort((key, value) => {
-      plugins.push(value);
-    });
+  // The filter function that determines whether a package is a plugin. If options.filter
+  // is supplied, go with that. Otherwise, check for options.keyword match.
+  function isPlugin(plugin) {
+    if (options.filter) {
+      return options.filter(plugin);
+    }
+    if (!plugin.pkg.keywords) {
+      return false;
+    }
+    if (!keyword) {
+      keyword = plugin.pkg.name;
+    }
+    return plugin.pkg.keywords.indexOf(keyword) > -1;
   }
 
-  return plugins;
 }
 
 findPlugins.default = findPlugins;
