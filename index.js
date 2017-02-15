@@ -103,11 +103,11 @@ function findPlugins(options) {
     }
     return dependencies
       // Load package.json's from resolved package location
-      .map((dir) => {
+      .map((dep) => {
         try {
-          let pkgMainPath = resolve.sync(name, { basedir: dir });
-          let pkg = readPkgUp.sync({ cwd: path.dirname(pkgMainPath) });
-          return { dir, pkg };
+          let pkgMainPath = resolve.sync(dep, { basedir: dir });
+          let foundPkg = readPkgUp.sync({ cwd: path.dirname(pkgMainPath) });
+          return { dir: path.dirname(foundPkg.path), pkg: foundPkg.pkg };
         } catch (e) {
           return false;
         }
@@ -124,7 +124,7 @@ function findPlugins(options) {
       return false;
     }
     if (!keyword) {
-      keyword = plugin.pkg.name;
+      keyword = pkg.name;
     }
     return plugin.pkg.keywords.indexOf(keyword) > -1;
   }
