@@ -40,8 +40,6 @@ function findPlugins(options) {
     }
   }));
 
-  console.log('candidates', pluginCandidateDirectories);
-
   let plugins = pluginCandidateDirectories.filter(Boolean).filter(isPlugin);
 
   if (options.sort) {
@@ -103,7 +101,6 @@ function findPlugins(options) {
     if (options.includeOptional) {
       dependencies = dependencies.concat(Object.keys(pkg.optionalDependencies || {}));
     }
-    console.log('deps:', dependencies);
     return dependencies
       // Load package.json's from resolved package location
       .map((dep) => {
@@ -112,8 +109,6 @@ function findPlugins(options) {
           let foundPkg = readPkgUp.sync({ cwd: path.dirname(pkgMainPath) });
           return { dir: path.dirname(foundPkg.path), pkg: foundPkg.pkg };
         } catch (e) {
-          console.log('error loading from deps');
-          console.log(e);
           return false;
         }
       })
