@@ -50,7 +50,9 @@ function findPlugins(options) {
     });
     plugins = [];
     graph.topsort((key, value) => {
-      plugins.push(value);
+      if (value) {
+        plugins.push(value);
+      }
     });
   }
 
