@@ -6,7 +6,7 @@ function didFindPlugin(plugins, pluginName) {
   return assert(plugins.find(function(plugin) { return plugin.pkg.name === pluginName }), 'missing plugin ' + pluginName);
 }
 function didNotFindPlugin(plugins, pluginName) {
-  return assert(!plugins.find(function(plugin) { return plugin.pkg.name === pluginName }), 'extraneous pluginj ' + pluginName);
+  return assert(!plugins.find(function(plugin) { return plugin.pkg.name === pluginName }), 'extraneous plugin ' + pluginName);
 }
 
 var fixtures = path.join(__dirname, 'fixtures', 'app');
@@ -63,10 +63,21 @@ describe('find-plugins', function(){
       scanAllDirs: true,
       filter: function(plugin) { return true; },
       sort: true,
-      configName: "plugin-config"
+      configName: 'plugin-config'
     });
     pluginNames = plugins.map(function(plugin) { return plugin.pkg.name });
     assert.deepEqual(pluginNames, [ 'foobar', 'extra-foobar', 'not-a-plugin' ], 'plugins are incorrectly sorted');
   });
 
+  it('should not add empty plugin objects during sort', function() {
+    plugins = findPlugins({
+      dir: fixtures,
+      scanAllDirs: true,
+      filter: function(plugin) { return true; },
+      sort: true,
+      configName: 'plugin-config'
+    });
+
+    assert.equal(plugins.filter(function (plugin) { return !plugin; }).length, 0, 'found an empty plugin object');
+  });
 });

@@ -3,5 +3,8 @@
   "keywords": [
     "plugin",
     "app"
-  ]
+  ],
+  "plugin-config": {
+    "after": [ "nonexistent" ]
+  }
 }
