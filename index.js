@@ -74,8 +74,14 @@ function findPlugins(options) {
       }, [])
       // Get the full directory path
       .map((name) => path.join(dir, name))
-      // Ensure it actually is a directory
-      .filter((dir) => fs.statSync(dir).isDirectory())
+      // Ensure it actually is a directory; also ensures any symlinks in the path are still valid (statSync throws if not)
+      .filter((dir) => {
+        try {
+          return fs.statSync(dir).isDirectory();
+        } catch(e) {
+          return false;
+        }
+      })
       // Load the package.json for each
       .map((dir) => {
         try {
