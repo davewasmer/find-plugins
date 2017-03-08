@@ -1,3 +1,4 @@
+var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
 var findPlugins = require('../index');
@@ -11,8 +12,34 @@ function didNotFindPlugin(plugins, pluginName) {
 
 var fixtures = path.join(__dirname, 'fixtures', 'app');
 var nodeModules = path.join(__dirname, 'fixtures', 'app', 'node_modules');
+var external = path.join(fixtures, 'external');
+var externalInvalid = path.join(fixtures, 'external-invalid');
+var externalSym = path.join(nodeModules, 'external');
+var externalInvalidSym = path.join(nodeModules, 'external-invalid');
+
 
 describe('find-plugins', function(){
+  before(function () {
+    try {
+      fs.mkdirSync(external);
+      fs.symlinkSync(external, externalSym);
+      fs.mkdirSync(externalInvalid);
+      fs.symlinkSync(externalInvalid, externalInvalidSym);
+      fs.rmdirSync(externalInvalid);
+    } catch(e) {
+      console.log('symlink fixture creation failed');
+    }
+  });
+
+  after(function () {
+    try {
+      fs.rmdirSync(external);
+      fs.rmdirSync(externalSym);
+      fs.rmdirSync(externalInvalidSym);
+    } catch(e) {
+      console.log('symlink fixture cleanup failed');
+    }
+  });
 
   it('should find plugins found in package.json', function(){
     plugins = findPlugins({ dir: fixtures,
