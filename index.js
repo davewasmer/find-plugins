@@ -5,11 +5,13 @@ const resolve = require('resolve');
 const readPkg = require('read-pkg');
 const readPkgUp = require('read-pkg-up');
 const DAG = require('dag-map').default;
+const debug = require('debug')('find-plugins');
 
 function findPlugins(options) {
   options = options || {};
   // The directory to scan for plugins
   let dir = options.dir || process.cwd();
+  debug('starting plugin search from %s', dir);
   // The path to the package.json that lists dependencies to check for plugins
   let pkgPath = options.pkg || (options.dir && path.join(options.dir, 'package.json')) || 'package.json';
   let pkg;
@@ -36,6 +38,7 @@ function findPlugins(options) {
         pkg: readPkg.sync(path.join(includedDir, 'package.json'))
       };
     } catch (e) {
+      debug('unable to read package.json for %s, skipping', includedDir);
       return false;
     }
   }));
@@ -59,6 +62,7 @@ function findPlugins(options) {
   return plugins;
 
   function findCandidatesInDir(dir) {
+    debug('searching for plugins in %s', dir);
     return fs.readdirSync(dir)
       // Handle scoped packages
       .reduce((candidates, name) => {
@@ -87,12 +91,14 @@ function findPlugins(options) {
         try {
           return { dir, pkg: readPkg.sync(path.join(dir, 'package.json')) };
         } catch (e) {
+          debug('unable to read package.json from %s candidate directory, skipping', dir);
           return false;
         }
       })
   }
 
   function findCandidatesFromPkg(pkg) {
+    debug('searching for plugins from package.json: %o', pkg);
     let dependencies = [];
     if (!options.excludeDependencies) {
       dependencies = dependencies.concat(Object.keys(pkg.dependencies || {}));
@@ -112,11 +118,18 @@ function findPlugins(options) {
     return dependencies
       // Load package.json's from resolved package location
       .map((dep) => {
+        let pkgMainPath
         try {
-          let pkgMainPath = resolve.sync(dep, { basedir: dir });
+          pkgMainPath = resolve.sync(dep, { basedir: dir });
+        } catch (e) {
+          debug('unable to resolve %s dependency, skipping (%s)', dep, e);
+          return false;
+        }
+        try {
           let foundPkg = readPkgUp.sync({ cwd: path.dirname(pkgMainPath) });
           return { dir: path.dirname(foundPkg.path), pkg: foundPkg.pkg };
         } catch (e) {
+          debug('unable to read package.json of %s dependency, skipping (%s)', dep, e);
           return false;
         }
       })
