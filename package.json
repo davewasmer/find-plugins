@@ -1,6 +1,6 @@
 {
   "name": "find-plugins",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Add plugin functionality to your tool - search for installed node_modules by keyword or other criteria.",
   "main": "index.js",
   "scripts": {
