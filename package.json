@@ -29,7 +29,8 @@
   },
   "homepage": "https://github.com/davewasmer/find-plugins",
   "devDependencies": {
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "standard-version": "^4.2.0"
   },
   "dependencies": {
     "dag-map": "^2.0.2",
