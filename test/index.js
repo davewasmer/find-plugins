@@ -28,16 +28,18 @@ describe('find-plugins', function(){
       fs.rmdirSync(externalInvalid);
     } catch(e) {
       console.log('symlink fixture creation failed');
+      console.log(e.stack);
     }
   });
 
   after(function () {
     try {
       fs.rmdirSync(external);
-      fs.rmdirSync(externalSym);
-      fs.rmdirSync(externalInvalidSym);
+      fs.unlinkSync(externalSym);
+      fs.unlinkSync(externalInvalidSym);
     } catch(e) {
       console.log('symlink fixture cleanup failed');
+      console.log(e.stack);
     }
   });
 
@@ -93,7 +95,7 @@ describe('find-plugins', function(){
       configName: 'plugin-config'
     });
     pluginNames = plugins.map(function(plugin) { return plugin.pkg.name });
-    assert.deepEqual(pluginNames, [ 'foobar', 'extra-foobar', 'not-a-plugin' ], 'plugins are incorrectly sorted');
+    assert.deepEqual(pluginNames, [ 'foobar', 'extra-foobar', 'not-a-plugin', 'main-dir-plugin' ], 'plugins are incorrectly sorted');
   });
 
   it('should not add empty plugin objects during sort', function() {
@@ -106,5 +108,21 @@ describe('find-plugins', function(){
     });
 
     assert.equal(plugins.filter(function (plugin) { return !plugin; }).length, 0, 'found an empty plugin object');
+  });
+
+  it('should allow mutating package.json contents before they are used', function() {
+    plugins = findPlugins({
+      dir: fixtures,
+      resolvePackageFilter(pkg) {
+        if (pkg.mainDir) {
+          pkg.main = pkg.main || 'index.js';
+          pkg.main = path.join(pkg.mainDir, pkg.main);
+        }
+        return pkg;
+      }
+    });
+
+    let pluginNames = plugins.map(function(plugin) { return plugin.pkg.name });
+    assert.deepEqual(pluginNames, [ 'foobar', 'main-dir-plugin' ], 'package.json not filtered');
   });
 });

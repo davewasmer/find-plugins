@@ -118,6 +118,14 @@ export default function findPlugins(options?: {
    *
    * @type {boolean}
    */
-  includeOptional?: boolean
+  includeOptional?: boolean,
+
+  /**
+   * An optional filter to pass to `resolve()`, which is run on package.json files
+   * encountered during the plugin search, before the `main` field is accessed.
+   * 
+   * @type {function}
+   */
+  resolvePackageFilter?<T>(pkg: T): T
 
 }): PluginSummary[];

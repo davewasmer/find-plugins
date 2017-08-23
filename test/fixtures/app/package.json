@@ -1,6 +1,7 @@
 {
   "name": "app",
   "dependencies": {
-    "foobar": "*"
+    "foobar": "*",
+    "main-dir-plugin": "*"
   }
 }

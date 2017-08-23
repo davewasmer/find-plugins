@@ -28,7 +28,7 @@ function findPlugins(options) {
     throw new Error('You passed sort: true to findPlugins, but did not provide a valid package.json path or configName');
   }
 
-  let pluginCandidateDirectories = options.scanAllDirs ? findCandidatesInDir(dir) : findCandidatesFromPkg(pkg);
+  let pluginCandidateDirectories = options.scanAllDirs ? findCandidatesInDir(dir) : findCandidatesFromPkg(pkg, options.resolvePackageFilter);
 
   // Include an manually specified packages in the list of plugin candidates
   pluginCandidateDirectories = pluginCandidateDirectories.concat(includes.map((includedDir) => {
@@ -97,7 +97,7 @@ function findPlugins(options) {
       })
   }
 
-  function findCandidatesFromPkg(pkg) {
+  function findCandidatesFromPkg(pkg, resolvePackageFilter) {
     debug('searching for plugins from package.json: %o', pkg);
     let dependencies = [];
     if (!options.excludeDependencies) {
@@ -120,7 +120,7 @@ function findPlugins(options) {
       .map((dep) => {
         let pkgMainPath
         try {
-          pkgMainPath = resolve.sync(dep, { basedir: dir });
+          pkgMainPath = resolve.sync(dep, { basedir: dir, packageFilter: resolvePackageFilter });
         } catch (e) {
           debug('unable to resolve %s dependency, skipping (%s)', dep, e);
           return false;
