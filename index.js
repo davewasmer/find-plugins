@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const resolve = require('resolve');
 const readPkg = require('read-pkg');
-const readPkgUp = require('read-pkg-up');
+const pkgUp = require('pkg-up');
+const resolvePkg = require('resolve-pkg');
 const DAG = require('dag-map').default;
 const debug = require('debug')('find-plugins');
 
@@ -13,7 +14,7 @@ function findPlugins(options) {
   let dir = options.dir || process.cwd();
   debug('starting plugin search from %s', dir);
   // The path to the package.json that lists dependencies to check for plugins
-  let pkgPath = options.pkg || (options.dir && path.join(options.dir, 'package.json')) || 'package.json';
+  let pkgPath = options.pkg || (options.dir && pkgUp.sync(options.dir)) || pkgUp.sync();
   let pkg;
   try {
     pkg = readPkg.sync(pkgPath);
@@ -97,7 +98,7 @@ function findPlugins(options) {
       })
   }
 
-  function findCandidatesFromPkg(pkg, resolvePackageFilter) {
+  function findCandidatesFromPkg(pkg) {
     debug('searching for plugins from package.json: %o', pkg);
     let dependencies = [];
     if (!options.excludeDependencies) {
@@ -118,16 +119,10 @@ function findPlugins(options) {
     return dependencies
       // Load package.json's from resolved package location
       .map((dep) => {
-        let pkgMainPath
         try {
-          pkgMainPath = resolve.sync(dep, { basedir: dir, packageFilter: resolvePackageFilter });
-        } catch (e) {
-          debug('unable to resolve %s dependency, skipping (%s)', dep, e);
-          return false;
-        }
-        try {
-          let foundPkg = readPkgUp.sync({ cwd: path.dirname(pkgMainPath) });
-          return { dir: path.dirname(foundPkg.path), pkg: foundPkg.pkg };
+          let pkgDir = resolvePkg(dep, { cwd: dir });
+          let foundPkg = readPkg.sync(path.join(pkgDir, 'package.json'));
+          return { dir: pkgDir, pkg: foundPkg };
         } catch (e) {
           debug('unable to read package.json of %s dependency, skipping (%s)', dep, e);
           return false;
