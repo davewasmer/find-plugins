@@ -1,7 +1,6 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const resolve = require('resolve');
 const readPkg = require('read-pkg');
 const pkgUp = require('pkg-up');
 const resolvePkg = require('resolve-pkg');
