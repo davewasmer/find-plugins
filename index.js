@@ -1,9 +1,9 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const readPkg = require('read-pkg');
-const pkgUp = require('pkg-up');
+const readPkg = require('read-pkg').sync;
 const resolvePkg = require('resolve-pkg');
+const pkgUp = require('pkg-up').sync;
 const DAG = require('dag-map').default;
 const debug = require('debug')('find-plugins');
 
@@ -13,10 +13,10 @@ function findPlugins(options) {
   let dir = options.dir || process.cwd();
   debug('starting plugin search from %s', dir);
   // The path to the package.json that lists dependencies to check for plugins
-  let pkgPath = options.pkg || (options.dir && pkgUp.sync(options.dir)) || pkgUp.sync();
+  let pkgPath = options.pkg || (options.dir && pkgUp(options.dir)) || pkgUp();
   let pkg;
   try {
-    pkg = readPkg.sync(pkgPath);
+    pkg = readPkg(pkgPath);
   } catch(e) {}
   // An array of additional paths to check as plugins
   let includes = options.include || [];
@@ -35,7 +35,7 @@ function findPlugins(options) {
     try {
       return {
         dir: includedDir,
-        pkg: readPkg.sync(path.join(includedDir, 'package.json'))
+        pkg: readPkg(path.join(includedDir, 'package.json'))
       };
     } catch (e) {
       debug('unable to read package.json for %s, skipping', includedDir);
@@ -89,7 +89,7 @@ function findPlugins(options) {
       // Load the package.json for each
       .map((dir) => {
         try {
-          return { dir, pkg: readPkg.sync(path.join(dir, 'package.json')) };
+          return { dir, pkg: readPkg(path.join(dir, 'package.json')) };
         } catch (e) {
           debug('unable to read package.json from %s candidate directory, skipping', dir);
           return false;
@@ -120,7 +120,7 @@ function findPlugins(options) {
       .map((dep) => {
         try {
           let pkgDir = resolvePkg(dep, { cwd: dir });
-          let foundPkg = readPkg.sync(path.join(pkgDir, 'package.json'));
+          let foundPkg = readPkg(pkgDir);
           return { dir: pkgDir, pkg: foundPkg };
         } catch (e) {
           debug('unable to read package.json of %s dependency, skipping (%s)', dep, e);
