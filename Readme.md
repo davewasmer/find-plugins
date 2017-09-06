@@ -59,7 +59,7 @@ plugins = findPlugins({
 // dependencies, and the path to your app's package.json file. `pkg` is
 // optional if you are using `scanAllDirs` and `keyword` or `filter`.
 plugins = findPlugins({
-    dir: path.join('..', 'foo', 'bar', 'node_modules'),
+    modulesDir: path.join('..', 'foo', 'bar', 'node_modules'),
     pkg: path.join('..', 'foo', 'bar', 'package.json')
 });
 ```
@@ -88,7 +88,7 @@ plugins = findPlugins({
    *
    * @type {string}
    */
-  dir?: string = process.cwd(),
+  modulesDir?: string = process.cwd(),
 
   /**
    * The path to the package.json that lists dependencies to check for plugins
@@ -139,7 +139,7 @@ plugins = findPlugins({
 
   /**
    * If true, the package.json list of dependencies will be ignored, and all packages found in
-   * dir will be checked.
+   * modulesDir will be checked.
    *
    * @type {boolean}
    */
@@ -180,15 +180,7 @@ plugins = findPlugins({
    *
    * @type {boolean}
    */
-  includeOptional?: boolean,
-
-  /**
-   * An optional filter to pass to `resolve()`, which is run on package.json files
-   * encountered during the plugin search, before the `main` field is accessed.
-   * 
-   * @type {function}
-   */
-  resolvePackageFilter?<T>(pkg: T): T
+  includeOptional?: boolean
 
 }
 ```

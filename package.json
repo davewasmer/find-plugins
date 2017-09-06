@@ -1,6 +1,6 @@
 {
   "name": "find-plugins",
-  "version": "1.1.1",
+  "version": "1.0.2",
   "description": "Add plugin functionality to your tool - search for installed node_modules by keyword or other criteria.",
   "main": "index.js",
   "scripts": {
@@ -29,14 +29,14 @@
   },
   "homepage": "https://github.com/davewasmer/find-plugins",
   "devDependencies": {
-    "mocha": "^3.5.0",
-    "standard-version": "^4.2.0"
+    "eslint": "^4.6.1",
+    "mocha": "^3.2.0"
   },
   "dependencies": {
     "dag-map": "^2.0.2",
     "debug": "^3.0.1",
-    "pkg-up": "^2.0.0",
     "read-pkg": "^2.0.0",
+    "read-pkg-up": "^2.0.0",
     "resolve-pkg": "^1.0.0",
     "try-require": "^1.2.1"
   },

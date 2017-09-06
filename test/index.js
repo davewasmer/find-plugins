@@ -109,20 +109,4 @@ describe('find-plugins', function(){
 
     assert.equal(plugins.filter(function (plugin) { return !plugin; }).length, 0, 'found an empty plugin object');
   });
-
-  it('should allow mutating package.json contents before they are used', function() {
-    plugins = findPlugins({
-      dir: fixtures,
-      resolvePackageFilter(pkg) {
-        if (pkg.mainDir) {
-          pkg.main = pkg.main || 'index.js';
-          pkg.main = path.join(pkg.mainDir, pkg.main);
-        }
-        return pkg;
-      }
-    });
-
-    let pluginNames = plugins.map(function(plugin) { return plugin.pkg.name });
-    assert.deepEqual(pluginNames, [ 'foobar', 'main-dir-plugin' ], 'package.json not filtered');
-  });
 });
