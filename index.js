@@ -31,6 +31,8 @@ function findPlugins(options = {}) {
 
   candidates = addIncludes(candidates, options);
 
+  debug(`found ${ candidates.length } plugin candidates, checking them now ...`);
+
   let plugins = filterCandidates(candidates, options);
 
   if (options.sort) {
@@ -87,6 +89,7 @@ function sortPlugins(unsortedPlugins, options) {
 }
 
 function findCandidatesInDir({ dir }) {
+  debug(`searching all directories inside ${ dir } for plugin candidates`);
   return fs.readdirSync(dir)
     // Handle scoped packages
     .reduce((candidates, name) => {
@@ -103,7 +106,10 @@ function findCandidatesInDir({ dir }) {
     // Get the full directory path
     .map((name) => path.join(dir, name))
     // Ensure it actually is a directory
-    .filter((dir) => fs.lstatSync(dir).isDirectory())
+    .filter((dir) => {
+      let lstat = fs.lstatSync(dir)
+      return lstat.isDirectory() || lstat.isSymbolicLink()
+    })
     // Load the package.json for each
     .map((dir) => {
       try {
