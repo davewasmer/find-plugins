@@ -11,7 +11,8 @@ module.exports = findPlugins;
 findPlugins.default = findPlugins;
 
 
-function findPlugins(options = {}) {
+function findPlugins(options) {
+  options = options || {};
   options.dir = options.dir || process.cwd();
   debug('starting plugin search in %s', options.dir);
 
@@ -88,7 +89,8 @@ function sortPlugins(unsortedPlugins, options) {
   return sortedPlugins;
 }
 
-function findCandidatesInDir({ dir }) {
+function findCandidatesInDir(options) {
+  let dir = options.dir;
   debug(`searching all directories inside ${ dir } for plugin candidates`);
   return fs.readdirSync(dir)
     // Handle scoped packages
@@ -107,8 +109,8 @@ function findCandidatesInDir({ dir }) {
     .map((name) => path.join(dir, name))
     // Ensure it actually is a directory
     .filter((dir) => {
-      let lstat = fs.lstatSync(dir)
-      return lstat.isDirectory() || lstat.isSymbolicLink()
+      let lstat = fs.lstatSync(dir);
+      return lstat.isDirectory() || lstat.isSymbolicLink();
     })
     // Load the package.json for each
     .map((dir) => {
@@ -121,7 +123,7 @@ function findCandidatesInDir({ dir }) {
 }
 
 function findCandidatesFromPkg(options) {
-  let { pkg } = options;
+  let pkg = options.pkg;
   debug('searching package.json for plugins: %o', pkg);
   let dependencies = [];
   if (!options.excludeDependencies) {
