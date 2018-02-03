@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.1.4"></a>
+## [1.1.4](https://github.com/davewasmer/find-plugins/compare/v1.1.3...v1.1.4) (2018-02-03)
+
+
+### Bug Fixes
+
+* throw a reasonable error when a dependency cannott be resolved, rather than endlessly recursing ([0b6e85a](https://github.com/davewasmer/find-plugins/commit/0b6e85a))
+
+
+
 <a name="1.1.3"></a>
 ## [1.1.3](https://github.com/davewasmer/find-plugins/compare/v1.1.2...v1.1.3) (2017-09-19)
 
