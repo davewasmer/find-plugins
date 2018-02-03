@@ -65,9 +65,6 @@ function includesFromOptions(candidates, options) {
 
 function filterCandidates(candidates, options) {
   return candidates.filter((candidate) => {
-    if (!candidate) {
-      return false;
-    }
     if (options.filter) {
       return options.filter(candidate);
     }
@@ -124,7 +121,7 @@ function findCandidatesInDir(options) {
       } catch (e) {
         return false;
       }
-    });
+    }).filter(Boolean);
 }
 
 function findCandidatesFromPkg(options) {
@@ -153,9 +150,11 @@ function findCandidatesFromPkg(options) {
       let pkgDir = resolvePkg(dep, { cwd: options.dir });
       if (!pkgDir) {
         if (options.includeDev) {
-          throw new Error(`FindPlugins: Unable to resolve ${ dep } from ${ options.dir }. You set 'includeDev: true' - make sure you aren't trying to recursively find plugins (devDependencies aren't normally installed for your dependencies). 0therwise, try reinstalling node_modules`);
+          debug(`Unable to resolve ${ dep } from ${ options.dir }. You set 'includeDev: true' - make sure you aren't trying to recursively find plugins (devDependencies aren't normally installed for your dependencies). 0therwise, try reinstalling node_modules`);
+        } else {
+          debug(`Unable to resolve ${ dep } from ${ options.dir }. Is your node_modules folder corrupted? Try removing it and reinstalling dependencies.`);
         }
-        throw new Error(`FindPlugins: Unable to resolve ${ dep } from ${ options.dir }. Is your node_modules folder corrupted? Try removing it and reinstalling dependencies.`);
+        return false;
       }
       let foundPkg;
       try {
@@ -165,5 +164,5 @@ function findCandidatesFromPkg(options) {
         return false;
       }
       return { dir: path.dirname(foundPkg.path), pkg: foundPkg.pkg };
-    });
+    }).filter(Boolean);
 }
