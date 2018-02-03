@@ -30,11 +30,17 @@ function findPlugins(options) {
     candidates = findCandidatesFromPkg(options);
   }
 
-  candidates = addIncludes(candidates, options);
+  debug(`found ${ candidates.length } plugin candidates: ${  candidates.map((c) => c.pkg.name).join(', ') }`);
 
-  debug(`found ${ candidates.length } plugin candidates, checking them now ...`);
+  let includes = includesFromOptions(candidates, options);
+
+  debug(`${ includes.length } plugins manually included: ${  includes.map((i) => i.pkg.name).join(', ') }`);
+
+  candidates = candidates.concat(includes);
 
   let plugins = filterCandidates(candidates, options);
+
+  debug(`found ${ plugins.length } plugins: ${ plugins.map((p) => p.pkg.name).join(', ') }`);
 
   if (options.sort) {
     return sortPlugins(plugins, options);
@@ -43,10 +49,9 @@ function findPlugins(options) {
   return plugins;
 }
 
-function addIncludes(candidates, options) {
+function includesFromOptions(candidates, options) {
   let includes = options.include || [];
-  debug(`manually adding ${ includes.length } includes`);
-  return candidates.concat(includes.map((includedDir) => {
+  return includes.map((includedDir) => {
     try {
       return {
         dir: includedDir,
@@ -55,7 +60,7 @@ function addIncludes(candidates, options) {
     } catch (e) {
       return false;
     }
-  }));
+  });
 }
 
 function filterCandidates(candidates, options) {
@@ -146,6 +151,12 @@ function findCandidatesFromPkg(options) {
     // Load package.json's from resolved package location
     .map((dep) => {
       let pkgDir = resolvePkg(dep, { cwd: options.dir });
+      if (!pkgDir) {
+        if (options.includeDev) {
+          throw new Error(`FindPlugins: Unable to resolve ${ dep } from ${ options.dir }. You set 'includeDev: true' - make sure you aren't trying to recursively find plugins (devDependencies aren't normally installed for your dependencies). 0therwise, try reinstalling node_modules`);
+        }
+        throw new Error(`FindPlugins: Unable to resolve ${ dep } from ${ options.dir }. Is your node_modules folder corrupted? Try removing it and reinstalling dependencies.`);
+      }
       let foundPkg;
       try {
         foundPkg = readPkgUp.sync({ cwd: pkgDir });
