@@ -95,7 +95,7 @@ describe('find-plugins', function(){
       configName: 'plugin-config'
     });
     var pluginNames = plugins.map(function(plugin) { return plugin.pkg.name; });
-    assert.deepEqual(pluginNames, [ 'foobar', 'extra-foobar', 'not-a-plugin', 'main-dir-plugin' ], 'plugins are incorrectly sorted');
+    assert.deepEqual(pluginNames, [ 'foobar', 'extra-foobar', 'not-a-plugin'  ], 'plugins are incorrectly sorted');
   });
 
   it('should not add empty plugin objects during sort', function() {
