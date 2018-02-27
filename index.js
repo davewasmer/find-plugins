@@ -148,6 +148,18 @@ function findCandidatesFromPkg(options) {
     // Load package.json's from resolved package location
     .map((dep) => {
       let pkgDir = resolvePkg(dep, { cwd: options.dir });
+
+      // Check if there's a symlink where you'd usually find this node_module
+      let potentialSymlink = path.join(options.dir, dep);
+      // If there is, and it points to our actual source dir, then use the symlink path
+      if (
+        fs.existsSync(potentialSymlink)
+        && fs.lstatSync(potentialSymlink).isSymbolicLink()
+        && fs.realpathSync(potentialSymlink) === pkgDir
+      ) {
+        pkgDir = potentialSymlink;
+      }
+
       if (!pkgDir) {
         if (options.includeDev) {
           debug(`Unable to resolve ${ dep } from ${ options.dir }. You set 'includeDev: true' - make sure you aren't trying to recursively find plugins (devDependencies aren't normally installed for your dependencies). 0therwise, try reinstalling node_modules`);
@@ -156,6 +168,7 @@ function findCandidatesFromPkg(options) {
         }
         return false;
       }
+
       let foundPkg;
       try {
         foundPkg = readPkgUp.sync({ cwd: pkgDir });
@@ -163,6 +176,7 @@ function findCandidatesFromPkg(options) {
         debug('Unable to read package.json for %s, skipping', pkgDir);
         return false;
       }
+
       return { dir: path.dirname(foundPkg.path), pkg: foundPkg.pkg };
     }).filter(Boolean);
 }
