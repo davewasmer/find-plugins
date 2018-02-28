@@ -1,4 +1,4 @@
-[![Travis](https://img.shields.io/travis/davewasmer/find-plugins.svg?style=flat-square)](https://travis-ci.org/davewasmer/find-plugins)
+[![CircleCI](https://img.shields.io/circleci/project/github/davewasmer/find-plugins.svg?style=flat-square)](https://circleci.com/gh/davewasmer/find-plugins)
 [![Dependencies](https://img.shields.io/david/davewasmer/find-plugins.svg?style=flat-square)](https://david-dm.org/davewasmer/find-plugins)
 [![npm downloads](https://img.shields.io/npm/dm/find-plugins.svg?style=flat-square)](https://www.npmjs.com/package/find-plugins)
 ![latest version](https://img.shields.io/npm/v/find-plugins.svg?style=flat-square)
