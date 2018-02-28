@@ -150,7 +150,7 @@ function findCandidatesFromPkg(options) {
       let pkgDir = resolvePkg(dep, { cwd: options.dir });
 
       // Check if there's a symlink where you'd usually find this node_module
-      let potentialSymlink = path.join(options.dir, dep);
+      let potentialSymlink = path.join(options.dir, 'node_modules', dep);
       // If there is, and it points to our actual source dir, then use the symlink path
       if (
         fs.existsSync(potentialSymlink)

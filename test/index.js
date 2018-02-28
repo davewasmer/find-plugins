@@ -125,7 +125,7 @@ describe('find-plugins', function(){
   });
 
   it('when using the package.json as a manifest, should return a symlinked plugins symlink path, not its target, as the plugin directory', function() {
-    var plugins = findPlugins({ dir: nodeModules,
+    var plugins = findPlugins({ dir: fixtureApp,
       filter: function(plugin) { return plugin.pkg.name === 'symlinked-plugin-source'; },
       configName: 'plugin-config'
     });
